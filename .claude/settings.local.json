@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(pip show:*)",
+      "Bash(python3 -c \"import google.adk; print\\(google.adk.__file__\\)\")",
+      "Bash(pip3 show:*)",
+      "Bash(pip3 install:*)"
+    ]
+  }
+}
