@@ -1,6 +1,6 @@
 # ADK Cost Tracker
 
-[![PyPI version](https://img.shields.io/pypi/v/adk-cost-tracker.svg)](https://pypi.org/project/adk-cost-tracker/)
+[![PyPI - Version](https://img.shields.io/pypi/v/adk-cost-tracker)](https://pypi.org/project/adk-cost-tracker/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![CI](https://github.com/STHITAPRAJNAS/adk_cost_tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/STHITAPRAJNAS/adk_cost_tracker/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
