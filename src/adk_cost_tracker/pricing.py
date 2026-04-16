@@ -309,6 +309,21 @@ class PricingRegistry:
         logger.info("[CostTracker] Synced %d prices from store", len(db_prices))
         return self
 
+    async def update_store(self, store: "BaseStore") -> None:
+        """
+        Push all local pricing data into the database store.
+        Useful for administrative scripts to update the 'Source of Truth'.
+        """
+        for model_key, price in self._prices.items():
+            await store.update_price(
+                model_key=model_key,
+                provider=price.provider,
+                input_per_m=price.input_per_m,
+                output_per_m=price.output_per_m,
+                cached_input_per_m=price.cached_input_per_m,
+            )
+        logger.info("[CostTracker] Pushed %d prices to store", len(self._prices))
+
 
 # ── Module-level default registry (used by all components by default) ──────
 # Enterprise: replace with a custom registry at startup:

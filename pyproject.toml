@@ -9,13 +9,14 @@ description = "Self-hosted, multi-provider LLM cost tracking for Google ADK, Ope
 readme = "README.md"
 authors = [{ name = "STHITAPRAJNAS", email = "sthitaprajnas@example.com" }]
 license = { text = "MIT" }
-requires-python = ">=3.11"
-keywords = ["llm", "cost", "tracking", "google-adk", "openai", "bedrock", "gemini", "observability"]
+requires-python = ">=3.10"
+keywords = ["llm", "cost", "tracking", "google-adk", "observability"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",

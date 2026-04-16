@@ -4,55 +4,48 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/STHITAPRAJNAS/adk_cost_tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/STHITAPRAJNAS/adk_cost_tracker/actions/workflows/ci.yml)
 
-**Self-hosted, multi-provider LLM cost tracking for Google ADK, OpenAI, and AWS Bedrock.**
+**Centralized, database-driven LLM cost tracking for Google ADK environments.**
 
-ADK Cost Tracker is a lightweight, zero-dependency (core) Python library that intercepts LLM calls to track token usage and calculate costs in real-time. It supports centralized pricing and storage across multiple applications.
+ADK Cost Tracker is a lightweight, provider-agnostic library for Python 3.10+ that logs token usage and costs into a shared database. While it includes utilities for popular SDKs, its primary goal is to provide a seamless observability layer for **Google ADK** agents.
 
 ## Features
 
-- 🎯 **Seamless ADK Integration**: Drop-in plugin for Google ADK.
-- 🔌 **Multi-Provider Support**: Built-in trackers for OpenAI and AWS Bedrock (Converse API).
-- 🗄️ **Flexible Storage**: Store usage logs in local SQLite or shared PostgreSQL.
-- 💰 **Centralized Pricing**: Sync model prices from a shared database across all your apps.
-- 📊 **CLI Reporting**: Generate beautiful cost reports from your terminal.
-- 🪶 **Zero Core Dependencies**: Only install what you need (e.g., `pip install adk-cost-tracker[postgres,openai]`).
+- 🎯 **Seamless ADK Integration**: First-class `CostTrackerPlugin` for Google ADK.
+- 💰 **Centralized Pricing**: Store LLM prices in your shared database—update once, sync across all apps.
+- 🗄️ **Shared Storage**: Use the same PostgreSQL instance as ADK's `SessionService` for unified logs.
+- 📊 **Provider Agnostic**: Core logic treats models and providers as simple keys—works with any LLM.
+- 🪶 **Zero Core Dependencies**: Core library has no external requirements.
 
 ## Installation
 
 ```bash
-# Core only (SQLite + Gemini built-in)
+# Core only (SQLite + Python 3.10+)
 pip install adk-cost-tracker
-
-# With Postgres and OpenAI support
-pip install "adk-cost-tracker[postgres,openai]"
-
-# Install everything
-pip install "adk-cost-tracker[all]"
 ```
 
-## Quick Start
+## How It Works: Centralized Pricing
 
-### Using with Google ADK
+A common challenge in LLM apps is keeping cost data up-to-date across multiple microservices. ADK Cost Tracker solves this by using your database as the **Source of Truth** for pricing.
+
+1.  **Apps sync at startup**: ADK apps call `registry.sync_with_store(db)`.
+2.  **Seeding**: If the database is new, the library automatically seeds it with standard market rates.
+3.  **Updates**: Update a price in the `llm_pricing` table via SQL or the library's API, and all apps will reflect the change.
+
+## Quick Start (Google ADK)
 
 ```python
 from adk_cost_tracker import CostTrackerPlugin
 from adk_cost_tracker.store import make_store
 
-# 1. Setup a shared store (Postgres recommended for production)
+# Share your ADK database
 store = make_store("postgresql://user:pw@host/mydb")
 
-# 2. Add the plugin to your ADK Runner
+# Use the plugin in your runner
 plugin = CostTrackerPlugin(
     store=store,
-    app_name="my_rag_app",
-    sync_pricing=True,  # Automatically sync/seed pricing from DB
+    app_name="finance_agent",
+    sync_pricing=True, # Syncs local memory with DB values
     verbose=True
-)
-
-runner = Runner(
-    agent=agent,
-    app_name="my_rag_app",
-    plugins=[plugin]
 )
 ```
 
