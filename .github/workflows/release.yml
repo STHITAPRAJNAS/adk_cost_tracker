@@ -50,10 +50,27 @@ jobs:
         with:
           name: dist
           path: dist/
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          python - <<'EOF'
+          import re, os
+          version = os.environ["GITHUB_REF_NAME"].lstrip("v")
+          text = open("CHANGELOG.md").read()
+          # Find the section for this version
+          pattern = rf"## \[{re.escape(version)}\].*?(?=\n## \[|\Z)"
+          m = re.search(pattern, text, re.DOTALL)
+          body = m.group(0).strip() if m else f"Release {version}"
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("body<<CHANGELOG_EOF\n")
+              f.write(body + "\n")
+              f.write("CHANGELOG_EOF\n")
+          EOF
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
+          name: "ADK Cost Tracker ${{ github.ref_name }}"
+          body: ${{ steps.changelog.outputs.body }}
           files: |
             dist/*.tar.gz
             dist/*.whl
