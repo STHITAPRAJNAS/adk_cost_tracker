@@ -1,39 +1,30 @@
 """
-PricingRegistry — how the library knows what each model costs.
+PricingRegistry — provider-agnostic cost lookup.
 
 ╔══════════════════════════════════════════════════════════════════════╗
 ║  HOW COST LOOKUP WORKS                                               ║
 ║                                                                      ║
-║  1. Built-in table  – PRICES dict below, covers all major models.   ║
-║     Uses longest-substring matching so "gemini-2.5-flash" beats     ║
-║     "gemini-2.5" and "flash", avoiding mis-pricing.                 ║
+║  1. Database Sync   – registry.sync_with_store(db) loads prices     ║
+║     from a shared database. This is the recommended 'Production'    ║
+║     Source of Truth for all ADK apps.                               ║
 ║                                                                      ║
-║  2. YAML override   – point PRICING_CONFIG env var at a YAML file   ║
-║     to add private / on-prem / fine-tuned model pricing without     ║
-║     touching library code.                                           ║
+║  2. Built-in table  – Seed values for major models. Uses longest-    ║
+║     substring matching so "gemini-2.5-flash" beats "gemini-2.5".    ║
 ║                                                                      ║
-║  3. Runtime override – call registry.register() or                  ║
-║     registry.load_from_dict() at startup to inject custom prices    ║
-║     programmatically (from your own config system / secrets store). ║
+║  3. YAML override   – point PRICING_CONFIG env var at a YAML file   ║
+║     for local development or private model pricing.                 ║
 ║                                                                      ║
-║  4. Unknown model  – returns ModelPrice(0, 0, 0) and logs a         ║
-║     WARNING so you know pricing data is missing rather than          ║
-║     silently billing $0.                                             ║
+║  4. Unknown model   – returns ModelPrice(0, 0, 0) and logs a        ║
+║     WARNING. Add unknown models via DB or YAML.                     ║
 ╚══════════════════════════════════════════════════════════════════════╝
 
 YAML override format (~/.pricing.yaml or $PRICING_CONFIG path):
 
     models:
-      my-fine-tuned-gpt4:
-        provider: openai
-        input_per_m: 6.00
-        output_per_m: 24.00
-        cached_input_per_m: 1.50
-
-Sources (April 2026):
-  Gemini  — https://ai.google.dev/gemini-api/docs/pricing
-  OpenAI  — https://openai.com/api/pricing/
-  Bedrock — https://aws.amazon.com/bedrock/pricing/
+      my-internal-model:
+        provider: internal
+        input_per_m: 1.50
+        output_per_m: 4.00
 """
 
 from __future__ import annotations

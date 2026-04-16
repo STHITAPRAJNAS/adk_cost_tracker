@@ -4,17 +4,17 @@ build-backend = "hatchling.build"
 
 [project]
 name = "adk-cost-tracker"
-version = "0.1.0"
-description = "Self-hosted, multi-provider LLM cost tracking for Google ADK, OpenAI, and AWS Bedrock"
+version = "0.1.1"
+description = "Centralized, provider-agnostic LLM cost tracking and pricing management for Google ADK"
 readme = "README.md"
-authors = [{ name = "STHITAPRAJNAS", email = "sthitaprajnas@example.com" }]
-license = { text = "MIT" }
+authors = [{ name = "Sthitaprajna Sahoo", email = "sthitaprajna@example.com" }]
+license = "Apache-2.0"
 requires-python = ">=3.10"
-keywords = ["llm", "cost", "tracking", "google-adk", "observability"]
+keywords = ["llm", "cost", "tracking", "google-adk", "observability", "finops"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -25,22 +25,14 @@ classifiers = [
     "Typing :: Typed",
 ]
 
-# Zero hard dependencies — everything is optional to keep it lightweight
+# Zero hard dependencies — core library is purely agnostic
 dependencies = []
 
 [project.optional-dependencies]
 postgres = ["asyncpg>=0.29"]
-openai   = ["openai>=1.0"]
-bedrock  = ["boto3>=1.34"]
-google   = ["google-generativeai>=0.8"]
-adk      = ["google-adk>=1.0"]
 yaml     = ["PyYAML>=6.0"]
 all      = [
     "asyncpg>=0.29",
-    "openai>=1.0",
-    "boto3>=1.34",
-    "google-generativeai>=0.8",
-    "google-adk>=1.0",
     "PyYAML>=6.0",
 ]
 
@@ -73,11 +65,11 @@ addopts      = "-v --tb=short"
 # ── ruff (linting) ────────────────────────────────────────────────────────
 [tool.ruff]
 line-length    = 100
-target-version = "py311"
+target-version = "py310"
 select         = ["E", "F", "I", "UP", "B"]
 
 # ── mypy ──────────────────────────────────────────────────────────────────
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.10"
 strict         = false
 ignore_missing_imports = true

@@ -1,96 +1,133 @@
-# ADK Cost Tracker
+# ADK Cost Tracker 👻
 
 [![PyPI version](https://img.shields.io/pypi/v/adk-cost-tracker.svg)](https://pypi.org/project/adk-cost-tracker/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![CI](https://github.com/STHITAPRAJNAS/adk_cost_tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/STHITAPRAJNAS/adk_cost_tracker/actions/workflows/ci.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 
-**Centralized, database-driven LLM cost tracking for Google ADK environments.**
+**Centralized, provider-agnostic LLM cost tracking and pricing management for Google ADK.**
 
-ADK Cost Tracker is a lightweight, provider-agnostic library for Python 3.10+ that logs token usage and costs into a shared database. While it includes utilities for popular SDKs, its primary goal is to provide a seamless observability layer for **Google ADK** agents.
+ADK Cost Tracker is a lightweight observability layer for Python 3.10+ that intercepts LLM usage and persists it to a shared database. It solves the "distributed pricing" problem by using your database as the Source of Truth for model costs across all your services.
 
-## Features
+---
 
-- 🎯 **Seamless ADK Integration**: First-class `CostTrackerPlugin` for Google ADK.
-- 💰 **Centralized Pricing**: Store LLM prices in your shared database—update once, sync across all apps.
-- 🗄️ **Shared Storage**: Use the same PostgreSQL instance as ADK's `SessionService` for unified logs.
-- 📊 **Provider Agnostic**: Core logic treats models and providers as simple keys—works with any LLM.
-- 🪶 **Zero Core Dependencies**: Core library has no external requirements.
+## 🚀 Feature Matrix
 
-## Installation
+| Feature | Description |
+| :--- | :--- |
+| **Agnostic Core** | Treats providers and models as arbitrary keys—no hard SDK dependencies. |
+| **Centralized Pricing** | Store LLM prices in a shared DB; update once, sync everywhere. |
+| **Shared Storage** | Drop-in support for the same PostgreSQL instance used by ADK's `SessionService`. |
+| **Auto-Seeding** | Automatically populates new databases with current market pricing. |
+| **CLI Reporting** | Generate cross-app cost summaries directly from your terminal. |
+| **Zero-Config Plugin** | Seamless integration with Google ADK agents via `CostTrackerPlugin`. |
+
+---
+
+## 📦 Installation
 
 ```bash
 # Core only (SQLite + Python 3.10+)
 pip install adk-cost-tracker
+
+# With PostgreSQL support (Recommended for production)
+pip install "adk-cost-tracker[postgres]"
 ```
 
-## How It Works: Centralized Pricing
+---
 
-A common challenge in LLM apps is keeping cost data up-to-date across multiple microservices. ADK Cost Tracker solves this by using your database as the **Source of Truth** for pricing.
+## 🛠️ Agnostic Design
 
-1.  **Apps sync at startup**: ADK apps call `registry.sync_with_store(db)`.
-2.  **Seeding**: If the database is new, the library automatically seeds it with standard market rates.
-3.  **Updates**: Update a price in the `llm_pricing` table via SQL or the library's API, and all apps will reflect the change.
+ADK Cost Tracker is designed to be **provider-blind**. It does not include logic for specific LLM SDKs (like OpenAI or Bedrock). Instead, it provides a clean interface that expects:
+1.  **Model Key**: A string identifier (e.g., `"gpt-4o"`, `"gemini-1.5-pro"`).
+2.  **Usage Metadata**: Token counts (input, output, cached).
 
-## Quick Start (Google ADK)
+This allows the library to stay extremely lightweight and future-proof as new providers emerge.
+
+---
+
+## 🚦 Quick Start
+
+### 1. Integrate with Google ADK
+The library provides a first-class plugin for Google ADK that automatically captures usage metadata from model responses.
 
 ```python
 from adk_cost_tracker import CostTrackerPlugin
 from adk_cost_tracker.store import make_store
 
-# Share your ADK database
+# Connect to your shared ADK database
 store = make_store("postgresql://user:pw@host/mydb")
 
-# Use the plugin in your runner
+# Initialize the plugin
 plugin = CostTrackerPlugin(
     store=store,
     app_name="finance_agent",
-    sync_pricing=True, # Syncs local memory with DB values
+    sync_pricing=True, # Syncs local memory with DB values at startup
     verbose=True
 )
+
+# Add to your ADK Runner
+runner = Runner(
+    agent=agent,
+    app_name="finance_agent",
+    plugins=[plugin]
+)
 ```
 
-### Tracking OpenAI Calls
+### 2. Centralized Pricing Management
+You can update pricing globally for all your apps by updating the `llm_pricing` table in your database.
 
 ```python
-import openai
-from adk_cost_tracker.trackers.openai_tracker import track_openai
+from adk_cost_tracker.pricing import registry
 from adk_cost_tracker.store import make_store
 
-store = make_store()
-client = track_openai(openai.OpenAI(), store=store, app_name="standalone_app")
-
-# Use exactly like the standard client
-response = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[{"role": "user", "content": "Hello!"}]
-)
-# Usage and cost ($) are now recorded in SQLite!
+async def update_global_prices():
+    store = make_store("postgresql://user:pw@host/mydb")
+    
+    # Update a specific model price
+    await store.update_price(
+        model_key="gpt-4o",
+        provider="openai",
+        input_per_m=2.50,
+        output_per_m=10.00
+    )
+    
+    # All ADK apps will reflect this change on their next sync/restart.
 ```
 
-## CLI Reporting
+---
 
-Generate reports from your terminal:
+## 📊 Comparison
 
+| Feature | ADK Cost Tracker | Microsoft Presidio / Others |
+| :--- | :--- | :--- |
+| **Focus** | FinOps & Cost Observability | PII Redaction / Content Safety |
+| **Storage** | Self-hosted (Postgres/SQLite) | Cloud-specific or SaaS |
+| **Pricing** | Centralized in YOUR DB | Hardcoded or API-polled |
+| **Integration** | Native ADK Plugin | Generic Wrappers |
+
+---
+
+## 🧑‍💻 Developer Info
+
+### Running Tests
 ```bash
-# Summary of all apps
-adk-cost-report
+# Install dev dependencies
+uv sync --dev
 
-# Filter by app and date
-adk-cost-report --app my_rag_app --since 2026-04-01
-
-# Specify database DSN
-adk-cost-report --db postgresql://user:pw@host/mydb
+# Run pytest
+uv run pytest tests
 ```
 
-## Centralized Pricing
-
-You can manage LLM prices centrally in your database. `adk-cost-tracker` will automatically seed the database with current market rates if it's empty, and you can override them via SQL or YAML.
-
-```python
-# Force a sync from store
-await registry.sync_with_store(store)
+### Linting
+```bash
+uv run ruff check src tests
 ```
 
-## License
+---
 
-MIT © [STHITAPRAJNAS](https://github.com/STHITAPRAJNAS)
+## 📜 License
+
+Distributed under the **Apache License, Version 2.0**. See `LICENSE` for more information.
+
+Copyright © 2026 **Sthitaprajna Sahoo**
