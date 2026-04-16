@@ -5,6 +5,7 @@ Use this pattern to update the 'Source of Truth' in your shared database.
 
 import asyncio
 import logging
+
 from .pricing import registry
 from .store import make_store
 

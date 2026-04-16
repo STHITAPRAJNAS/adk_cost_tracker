@@ -1,17 +1,15 @@
 """Tests for SQLiteStore (always runs) and PostgresStore (skipped if no DB)."""
 
-import asyncio
 import os
 from datetime import datetime, timezone
-from pathlib import Path
 
 import pytest
 import pytest_asyncio
 
 from adk_cost_tracker.store import (
     CallRecord,
-    SQLiteStore,
     PostgresStore,
+    SQLiteStore,
     make_store,
 )
 
@@ -62,8 +60,12 @@ class TestSQLiteStore:
 
     @pytest.mark.asyncio
     async def test_summary_groups_correctly(self, sqlite_store):
-        await sqlite_store.insert(_make_record(provider="gemini", model="gemini-2.5-flash", cost_usd=0.001))
-        await sqlite_store.insert(_make_record(provider="gemini", model="gemini-2.5-flash", cost_usd=0.002))
+        await sqlite_store.insert(
+            _make_record(provider="gemini", model="gemini-2.5-flash", cost_usd=0.001)
+        )
+        await sqlite_store.insert(
+            _make_record(provider="gemini", model="gemini-2.5-flash", cost_usd=0.002)
+        )
         await sqlite_store.insert(_make_record(provider="openai", model="gpt-4o", cost_usd=0.010))
         rows = await sqlite_store.summary()
         assert len(rows) == 2
@@ -92,7 +94,7 @@ class TestSQLiteStore:
 
     @pytest.mark.asyncio
     async def test_recent_limit(self, sqlite_store):
-        for i in range(10):
+        for _i in range(10):
             await sqlite_store.insert(_make_record())
         rows = await sqlite_store.recent(n=3)
         assert len(rows) == 3

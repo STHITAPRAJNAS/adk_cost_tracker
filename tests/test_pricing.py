@@ -1,19 +1,13 @@
 """Tests for PricingRegistry — cost lookup, overrides, YAML loading."""
 
-import os
-import tempfile
-from pathlib import Path
 
 import pytest
 
 from adk_cost_tracker.pricing import (
     PricingRegistry,
-    ModelPrice,
     calculate_cost,
     get_price,
-    registry,
 )
-
 
 # ── Builtin lookups ────────────────────────────────────────────────────────
 
@@ -189,7 +183,13 @@ models:
         except ImportError:
             pytest.skip("PyYAML not installed")
 
-        yaml_content = "models:\n  env-loaded-model:\n    provider: custom\n    input_per_m: 1.0\n    output_per_m: 4.0\n"
+        yaml_content = (
+            "models:\n"
+            "  env-loaded-model:\n"
+            "    provider: custom\n"
+            "    input_per_m: 1.0\n"
+            "    output_per_m: 4.0\n"
+        )
         yaml_file = tmp_path / "env_prices.yaml"
         yaml_file.write_text(yaml_content)
         monkeypatch.setenv("PRICING_CONFIG", str(yaml_file))

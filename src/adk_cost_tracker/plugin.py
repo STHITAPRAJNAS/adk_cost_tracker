@@ -31,7 +31,6 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime, timezone
-from typing import Optional
 
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.models.llm_response import LlmResponse
@@ -60,7 +59,7 @@ class CostTrackerPlugin(BasePlugin):
 
     def __init__(
         self,
-        store: Optional[BaseStore] = None,
+        store: BaseStore | None = None,
         app_name: str = "",
         tags: dict[str, str] | None = None,
         sync_pricing: bool = False,

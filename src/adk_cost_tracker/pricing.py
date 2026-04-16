@@ -31,9 +31,12 @@ from __future__ import annotations
 
 import logging
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .store import BaseStore
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +158,7 @@ class PricingRegistry:
         if path:
             self.load_from_yaml(Path(path))
 
-    def load_from_yaml(self, path: Path) -> "PricingRegistry":
+    def load_from_yaml(self, path: Path) -> PricingRegistry:
         """
         Load / merge prices from a YAML file.  PyYAML must be installed.
 
@@ -185,7 +188,7 @@ class PricingRegistry:
             logger.error("Failed to load pricing YAML %s: %s", path, exc)
         return self
 
-    def load_from_dict(self, models: dict[str, dict]) -> "PricingRegistry":
+    def load_from_dict(self, models: dict[str, dict]) -> PricingRegistry:
         """
         Merge a dict of model prices at runtime.
 
@@ -214,7 +217,7 @@ class PricingRegistry:
         input_per_m: float,
         output_per_m: float,
         cached_input_per_m: float = 0.0,
-    ) -> "PricingRegistry":
+    ) -> PricingRegistry:
         """Register or override a single model price at runtime."""
         self._prices[model_key.lower()] = ModelPrice(
             provider=provider,
@@ -264,7 +267,7 @@ class PricingRegistry:
         """Return a snapshot of all registered model prices."""
         return dict(self._prices)
 
-    async def sync_with_store(self, store: "BaseStore") -> "PricingRegistry":
+    async def sync_with_store(self, store: BaseStore) -> PricingRegistry:
         """
         Sync pricing with a storage backend.
         1. Fetches all prices from the store and updates local registry.
@@ -272,7 +275,6 @@ class PricingRegistry:
         """
         # Note: BaseStore and other types are imported here to avoid circular imports
         # or we rely on the type hint being a string in the signature.
-        from .store import BaseStore
 
         db_prices = await store.get_all_prices()
         if not db_prices:
@@ -300,7 +302,7 @@ class PricingRegistry:
         logger.info("[CostTracker] Synced %d prices from store", len(db_prices))
         return self
 
-    async def update_store(self, store: "BaseStore") -> None:
+    async def update_store(self, store: BaseStore) -> None:
         """
         Push all local pricing data into the database store.
         Useful for administrative scripts to update the 'Source of Truth'.

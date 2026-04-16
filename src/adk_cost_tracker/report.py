@@ -12,9 +12,8 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-from pathlib import Path
 
-from .store import make_store, BaseStore
+from .store import BaseStore, make_store
 
 BOLD   = "\033[1m"
 CYAN   = "\033[36m"
