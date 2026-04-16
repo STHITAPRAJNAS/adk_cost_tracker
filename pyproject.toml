@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "adk-cost-tracker"
-version = "0.1.3"
+version = "0.1.4"
 description = "Centralized, provider-agnostic LLM cost tracking and pricing management for Google ADK"
 readme = "README.md"
 authors = [{ name = "Sthitaprajna Sahoo", email = "sthitaprajna@example.com" }]
