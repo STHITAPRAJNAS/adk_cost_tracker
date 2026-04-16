@@ -1,8 +1,8 @@
 """
 Storage backends for LLM usage records.
 
-SQLiteStore   — stdlib only, zero extra deps.  Good for local dev.
-PostgresStore — async via asyncpg.  Shares the same Postgres instance
+SQLiteStore   - stdlib only, zero extra deps.  Good for local dev.
+PostgresStore - async via asyncpg.  Shares the same Postgres instance
                 (but NOT the same database) as ADK's DatabaseSessionService.
                 Creates table `llm_usage_log` with app_name column so you
                 can GROUP BY / filter per app without needing a JOIN.
@@ -11,7 +11,7 @@ Factory:
     from adk_cost_tracker.store import make_store
 
     store = make_store()                                      # SQLite default
-    store = make_store("postgresql://user:pw@host:5432/db")  # Postgres
+    store = make_store("postgresql://user:pw@host:5432/db")   # Postgres
     store = make_store(db_path=Path("/tmp/costs.db"))         # SQLite custom path
 """
 
@@ -114,7 +114,7 @@ class CallRecord:
     meta: dict          # free-form extras (reasoning_tokens, stop_reason, …)
 
 
-# ── Abstract interface ─────────────────────────────────────────────────────
+# --- Abstract interface ---
 
 class BaseStore(ABC):
     @abstractmethod
@@ -151,7 +151,7 @@ class BaseStore(ABC):
             return False
 
 
-# ── PostgreSQL ─────────────────────────────────────────────────────────────
+# --- PostgreSQL ---
 
 class PostgresStore(BaseStore):
     """
@@ -332,7 +332,7 @@ class PostgresStore(BaseStore):
             return False
 
 
-# ── SQLite ─────────────────────────────────────────────────────────────────
+# --- SQLite ---
 
 class SQLiteStore(BaseStore):
     """
@@ -465,7 +465,7 @@ class SQLiteStore(BaseStore):
         )
 
 
-# ── Factory ────────────────────────────────────────────────────────────────
+# --- Factory ---
 
 def make_store(dsn: str | None = None, **kwargs) -> BaseStore:
     """

@@ -1,22 +1,20 @@
 """
-PricingRegistry — provider-agnostic cost lookup.
+PricingRegistry - provider-agnostic cost lookup.
 
-╔══════════════════════════════════════════════════════════════════════╗
-║  HOW COST LOOKUP WORKS                                               ║
-║                                                                      ║
-║  1. Database Sync   – registry.sync_with_store(db) loads prices     ║
-║     from a shared database. This is the recommended 'Production'    ║
-║     Source of Truth for all ADK apps.                               ║
-║                                                                      ║
-║  2. Built-in table  – Seed values for major models. Uses longest-    ║
-║     substring matching so "gemini-2.5-flash" beats "gemini-2.5".    ║
-║                                                                      ║
-║  3. YAML override   – point PRICING_CONFIG env var at a YAML file   ║
-║     for local development or private model pricing.                 ║
-║                                                                      ║
-║  4. Unknown model   – returns ModelPrice(0, 0, 0) and logs a        ║
-║     WARNING. Add unknown models via DB or YAML.                     ║
-╚══════════════════════════════════════════════════════════════════════╝
+----------------------------------------------------------------------
+HOW COST LOOKUP WORKS
+
+1. Database Sync - registry.sync_with_store(db) loads prices from a 
+   shared database. This is the recommended Production Source of Truth.
+
+2. Built-in table - Seed values for major models. Uses longest-substring 
+   matching so "gemini-2.5-flash" beats "gemini-2.5".
+
+3. YAML override - point PRICING_CONFIG env var at a YAML file for 
+   local development or private model pricing.
+
+4. Unknown model - returns ModelPrice(0, 0, 0) and logs a WARNING.
+----------------------------------------------------------------------
 
 YAML override format (~/.pricing.yaml or $PRICING_CONFIG path):
 
@@ -49,13 +47,15 @@ class ModelPrice:
     cached_input_per_m: float = 0.0  # USD per 1M cached/read tokens (usually ~10% of input)
 
 
-# ── Built-in price table ───────────────────────────────────────────────────
+# --- Built-in price table ---
+
 # Key = lowercase substring that must appear in the model name.
+
 # Longest-match wins: "gemini-2.5-flash" always beats "gemini-2.5" or "flash".
 
 _BUILTIN: dict[str, ModelPrice] = {
 
-    # ── Google Gemini ──────────────────────────────────────────────────────
+    # --- Google Gemini ---
     "gemini-2.5-pro": ModelPrice(
         provider="gemini", input_per_m=1.25, output_per_m=10.00, cached_input_per_m=0.3125
     ),
@@ -72,7 +72,7 @@ _BUILTIN: dict[str, ModelPrice] = {
         provider="gemini", input_per_m=0.075, output_per_m=0.30, cached_input_per_m=0.01875
     ),
 
-    # ── OpenAI ────────────────────────────────────────────────────────────
+    # --- OpenAI ---
     "gpt-4.1-mini": ModelPrice(
         provider="openai", input_per_m=0.40, output_per_m=1.60, cached_input_per_m=0.10
     ),
@@ -95,7 +95,7 @@ _BUILTIN: dict[str, ModelPrice] = {
         provider="openai", input_per_m=10.00, output_per_m=40.00, cached_input_per_m=2.50
     ),
 
-    # ── AWS Bedrock — Amazon Nova ─────────────────────────────────────────
+    # --- AWS Bedrock - Amazon Nova ---
     "amazon.nova-micro": ModelPrice(
         provider="bedrock", input_per_m=0.035, output_per_m=0.14
     ),
@@ -109,7 +109,7 @@ _BUILTIN: dict[str, ModelPrice] = {
         provider="bedrock", input_per_m=2.00, output_per_m=8.00
     ),
 
-    # ── AWS Bedrock — Anthropic Claude ────────────────────────────────────
+    # --- AWS Bedrock - Anthropic Claude ---
     "claude-3-5-sonnet": ModelPrice(
         provider="bedrock", input_per_m=3.00, output_per_m=15.00, cached_input_per_m=0.30
     ),
@@ -123,7 +123,7 @@ _BUILTIN: dict[str, ModelPrice] = {
         provider="bedrock", input_per_m=15.00, output_per_m=75.00, cached_input_per_m=1.50
     ),
 
-    # ── AWS Bedrock — Meta Llama ───────────────────────────────────────────
+    # --- AWS Bedrock - Meta Llama ---
     "llama3-1-405b": ModelPrice(provider="bedrock", input_per_m=0.65, output_per_m=0.80),
     "llama3-1-70b":  ModelPrice(provider="bedrock", input_per_m=0.35, output_per_m=0.45),
     "llama3-1-8b":   ModelPrice(provider="bedrock", input_per_m=0.20, output_per_m=0.25),
@@ -132,7 +132,7 @@ _BUILTIN: dict[str, ModelPrice] = {
 _UNKNOWN = ModelPrice(provider="unknown", input_per_m=0.0, output_per_m=0.0)
 
 
-# ── PricingRegistry ────────────────────────────────────────────────────────
+# --- PricingRegistry ---
 
 class PricingRegistry:
     """
@@ -151,7 +151,7 @@ class PricingRegistry:
         self._prices: dict[str, ModelPrice] = dict(_BUILTIN)
         self._load_env_yaml()
 
-    # ── Loading helpers ────────────────────────────────────────────────────
+    # --- Loading helpers ---
 
     def _load_env_yaml(self) -> None:
         path = os.environ.get("PRICING_CONFIG", "")
@@ -227,7 +227,7 @@ class PricingRegistry:
         )
         return self
 
-    # ── Lookup ─────────────────────────────────────────────────────────────
+    # --- Lookup ---
 
     def get(self, model_name: str) -> ModelPrice:
         """
@@ -318,7 +318,7 @@ class PricingRegistry:
         logger.info("[CostTracker] Pushed %d prices to store", len(self._prices))
 
 
-# ── Module-level default registry (used by all components by default) ──────
+# --- Module-level default registry ---
 # Enterprise: replace with a custom registry at startup:
 #   from adk_cost_tracker.pricing import registry
 #   registry.load_from_yaml(Path("my_prices.yaml"))

@@ -100,7 +100,7 @@ async def _print_recent(store: BaseStore, n: int):
     print()
 
 
-# ── Public helpers (call directly from Python) ────────────────────────────
+# --- Public helpers ---
 
 def print_summary(store: BaseStore, since: str | None = None,
                   app: str | None = None):
@@ -111,7 +111,7 @@ def print_recent(store: BaseStore, n: int = 20):
     asyncio.run(_print_recent(store, n))
 
 
-# ── CLI entry point ───────────────────────────────────────────────────────
+# --- CLI entry point ---
 
 def main():
     parser = argparse.ArgumentParser(description="LLM Cost Tracker report")

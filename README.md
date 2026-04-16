@@ -1,21 +1,21 @@
-# ADK Cost Tracker 👻
+# ADK Cost Tracker
 
 [![PyPI version](https://img.shields.io/pypi/v/adk-cost-tracker.svg)](https://pypi.org/project/adk-cost-tracker/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![CI](https://github.com/STHITAPRAJNAS/adk_cost_tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/STHITAPRAJNAS/adk_cost_tracker/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 
-**Centralized, provider-agnostic LLM cost tracking and pricing management for Google ADK.**
+Centralized, provider-agnostic LLM cost tracking and pricing management for Google ADK.
 
 ADK Cost Tracker is a lightweight observability layer for Python 3.10+ that intercepts LLM usage and persists it to a shared database. It solves the "distributed pricing" problem by using your database as the Source of Truth for model costs across all your services.
 
 ---
 
-## 🚀 Feature Matrix
+## Feature Matrix
 
 | Feature | Description |
 | :--- | :--- |
-| **Agnostic Core** | Treats providers and models as arbitrary keys—no hard SDK dependencies. |
+| **Agnostic Core** | Treats providers and models as arbitrary keys-no hard SDK dependencies. |
 | **Centralized Pricing** | Store LLM prices in a shared DB; update once, sync everywhere. |
 | **Shared Storage** | Drop-in support for the same PostgreSQL instance used by ADK's `SessionService`. |
 | **Auto-Seeding** | Automatically populates new databases with current market pricing. |
@@ -24,7 +24,7 @@ ADK Cost Tracker is a lightweight observability layer for Python 3.10+ that inte
 
 ---
 
-## 📦 Installation
+## Installation
 
 ```bash
 # Core only (SQLite + Python 3.10+)
@@ -36,7 +36,7 @@ pip install "adk-cost-tracker[postgres]"
 
 ---
 
-## 🛠️ Agnostic Design
+## Agnostic Design
 
 ADK Cost Tracker is designed to be **provider-blind**. It does not include logic for specific LLM SDKs (like OpenAI or Bedrock). Instead, it provides a clean interface that expects:
 1.  **Model Key**: A string identifier (e.g., `"gpt-4o"`, `"gemini-1.5-pro"`).
@@ -108,7 +108,7 @@ async def update_global_prices():
 
 ---
 
-## 🧑‍💻 Developer Info
+## Developer Info
 
 ### Running Tests
 ```bash
